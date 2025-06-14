@@ -1,3 +1,5 @@
+import Footer from "./components/Footer";
+
 export default function HomePage() {
   return (
     <main className="p-6 max-w-3xl mx-auto">
@@ -9,6 +11,7 @@ export default function HomePage() {
         <li><a href="/bonds">💰 채권 및 예금</a></li>
         <li><a href="/about">ℹ️ 사이트 소개</a></li>
       </ul>
+      <Footer />
     </main>
   );
 }
