@@ -30,16 +30,14 @@ export async function GET(request: Request) {
   if (config.days !== null) start.setDate(start.getDate() - config.days);
 
   try {
-    const result = await yf.historical(symbol, {
+    const result = await yf.chart(symbol, {
       period1: start.toISOString().split("T")[0],
       period2: end.toISOString().split("T")[0],
       interval: config.interval,
-    }, {
-      validateResult: false, // null 값이 포함된 데이터도 허용
     });
 
-    const data = result
-      .filter((d: { close: number | null }) => d.close !== null) // null close 제거
+    const data = (result.quotes ?? [])
+      .filter((d: { close: number | null }) => d.close !== null)
       .map((d: { date: Date; close: number; open: number; high: number; low: number; volume: number }) => ({
         date: d.date.toISOString().split("T")[0],
         close: d.close,
