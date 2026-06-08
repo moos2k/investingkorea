@@ -34,16 +34,20 @@ export async function GET(request: Request) {
       period1: start.toISOString().split("T")[0],
       period2: end.toISOString().split("T")[0],
       interval: config.interval,
+    }, {
+      validateResult: false, // null 값이 포함된 데이터도 허용
     });
 
-    const data = result.map((d: { date: Date; close: number; open: number; high: number; low: number; volume: number }) => ({
-      date: d.date.toISOString().split("T")[0],
-      close: d.close,
-      open: d.open,
-      high: d.high,
-      low: d.low,
-      volume: d.volume,
-    }));
+    const data = result
+      .filter((d: { close: number | null }) => d.close !== null) // null close 제거
+      .map((d: { date: Date; close: number; open: number; high: number; low: number; volume: number }) => ({
+        date: d.date.toISOString().split("T")[0],
+        close: d.close,
+        open: d.open ?? d.close,
+        high: d.high ?? d.close,
+        low: d.low ?? d.close,
+        volume: d.volume ?? 0,
+      }));
 
     return NextResponse.json({ symbol, period, data });
   } catch (e) {
