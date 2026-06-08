@@ -21,6 +21,7 @@ type Period = (typeof PERIODS)[number];
 
 interface HistoryPoint {
   date: string;
+  open: number;
   close: number;
   high: number;
   low: number;
