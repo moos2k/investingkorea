@@ -36,7 +36,7 @@ const SYMBOLS = {
 };
 
 async function fetchQuotes(symbols: string[]) {
-  const results: Record<string, { price: number; change: number; changePercent: number; prevClose: number }> = {};
+  const results: Record<string, { price: number; change: number; changePercent: number; prevClose: number; name?: string }> = {};
   try {
     const quotes = await Promise.allSettled(
       symbols.map((s) => yf.quote(s))
@@ -49,6 +49,7 @@ async function fetchQuotes(symbols: string[]) {
           change: q.regularMarketChange ?? 0,
           changePercent: q.regularMarketChangePercent ?? 0,
           prevClose: q.regularMarketPreviousClose ?? 0,
+          name: q.shortName || q.longName || symbols[i],
         };
       }
     });
@@ -58,13 +59,22 @@ async function fetchQuotes(symbols: string[]) {
   return results;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  // 사용자 관심종목 (콤마 구분, 예: ?watch=AAPL,005930.KS)
+  const watchParam = searchParams.get("watch") ?? "";
+  const watchSymbols = watchParam
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
   const allSymbols = [
     ...SYMBOLS.indices.map((x) => x.symbol),
     ...SYMBOLS.bonds.map((x) => x.symbol),
     ...SYMBOLS.forex.map((x) => x.symbol),
     ...SYMBOLS.commodities.map((x) => x.symbol),
     ...SYMBOLS.fear.map((x) => x.symbol),
+    ...watchSymbols,
   ];
 
   const quotes = await fetchQuotes(allSymbols);
@@ -75,6 +85,17 @@ export async function GET() {
       ...(quotes[item.symbol] ?? { price: null, change: null, changePercent: null }),
     }));
 
+  const watchlist = watchSymbols.map((symbol) => {
+    const q = quotes[symbol];
+    return {
+      symbol,
+      name: q?.name ?? symbol,
+      price: q?.price ?? null,
+      change: q?.change ?? null,
+      changePercent: q?.changePercent ?? null,
+    };
+  });
+
   return NextResponse.json(
     {
       indices: attach(SYMBOLS.indices),
@@ -82,6 +103,7 @@ export async function GET() {
       forex: attach(SYMBOLS.forex),
       commodities: attach(SYMBOLS.commodities),
       fear: attach(SYMBOLS.fear),
+      watchlist,
       updatedAt: new Date().toISOString(),
     },
     {
