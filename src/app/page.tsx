@@ -65,7 +65,16 @@ export default function Dashboard() {
   const [showSettings, setShowSettings] = useState(false);
   const [showAddStock, setShowAddStock] = useState(false);
 
-  const { settings, loaded, isVisible, toggleSection, addWatchItem, removeWatchItem } = useSettings();
+  const {
+    settings,
+    loaded,
+    isVisible,
+    isSymbolVisible,
+    toggleSection,
+    toggleSymbol,
+    addWatchItem,
+    removeWatchItem,
+  } = useSettings();
 
   const watchParam = settings.watchlist.map((w) => w.symbol).join(",");
   const apiUrl = watchParam ? `/api/market?watch=${encodeURIComponent(watchParam)}` : "/api/market";
@@ -121,54 +130,65 @@ export default function Dashboard() {
           <section>
             <SectionTitle icon="📊" title="주가지수" />
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-              {(data?.indices ?? Array(5).fill(null)).map((item, i) =>
-                item ? (
-                  <MarketCard key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
-                ) : (
-                  <SkeletonCard key={i} />
-                )
-              )}
+              {(data?.indices ?? Array(5).fill(null))
+                .filter((item) => !item || isSymbolVisible(item.symbol))
+                .map((item, i) =>
+                  item ? (
+                    <MarketCard key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
+                  ) : (
+                    <SkeletonCard key={i} />
+                  )
+                )}
             </div>
           </section>
         )}
 
         {(isVisible("bonds") || isVisible("forex") || isVisible("fear")) && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {isVisible("bonds") && (
-              <section className="lg:col-span-1">
-                <SectionTitle icon="🏦" title="미국 국채 수익률" />
-                <div className="grid grid-cols-2 gap-3">
-                  {(data?.bonds ?? Array(4).fill(null)).map((item, i) =>
-                    item ? (
-                      <MarketCard key={item.symbol} {...item} decimals={3} onClick={() => setSelected(item)} />
-                    ) : (
-                      <SkeletonCard key={i} />
-                    )
+            {isVisible("bonds") && (() => {
+              const visibleBonds = (data?.bonds ?? Array(4).fill(null)).filter(
+                (item) => !item || isSymbolVisible(item.symbol)
+              );
+              return (
+                <section className="lg:col-span-1">
+                  <SectionTitle icon="🏦" title="미국 국채 수익률" />
+                  <div className="grid grid-cols-2 gap-3">
+                    {visibleBonds.map((item, i) =>
+                      item ? (
+                        <MarketCard key={item.symbol} {...item} decimals={3} onClick={() => setSelected(item)} />
+                      ) : (
+                        <SkeletonCard key={i} />
+                      )
+                    )}
+                  </div>
+                  {data?.bonds && visibleBonds.length > 1 && (
+                    <YieldCurve
+                      bonds={visibleBonds
+                        .filter((b): b is MarketItem => !!b)
+                        .map((b) => ({
+                          maturity: b.maturity ?? "",
+                          price: b.price,
+                          changePercent: b.changePercent,
+                        }))}
+                    />
                   )}
-                </div>
-                {data?.bonds && (
-                  <YieldCurve
-                    bonds={data.bonds.map((b) => ({
-                      maturity: b.maturity ?? "",
-                      price: b.price,
-                      changePercent: b.changePercent,
-                    }))}
-                  />
-                )}
-              </section>
-            )}
+                </section>
+              );
+            })()}
 
             {isVisible("forex") && (
               <section className="lg:col-span-1">
                 <SectionTitle icon="💱" title="환율" />
                 <div className="grid grid-cols-2 gap-3">
-                  {(data?.forex ?? Array(4).fill(null)).map((item, i) =>
-                    item ? (
-                      <MarketCard key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
-                    ) : (
-                      <SkeletonCard key={i} />
-                    )
-                  )}
+                  {(data?.forex ?? Array(4).fill(null))
+                    .filter((item) => !item || isSymbolVisible(item.symbol))
+                    .map((item, i) =>
+                      item ? (
+                        <MarketCard key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
+                      ) : (
+                        <SkeletonCard key={i} />
+                      )
+                    )}
                 </div>
               </section>
             )}
@@ -197,13 +217,15 @@ export default function Dashboard() {
               <section>
                 <SectionTitle icon="🛢️" title="원자재" />
                 <div className="grid grid-cols-2 gap-3">
-                  {(data?.commodities ?? Array(4).fill(null)).map((item, i) =>
-                    item ? (
-                      <MarketCard key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
-                    ) : (
-                      <SkeletonCard key={i} />
-                    )
-                  )}
+                  {(data?.commodities ?? Array(4).fill(null))
+                    .filter((item) => !item || isSymbolVisible(item.symbol))
+                    .map((item, i) =>
+                      item ? (
+                        <MarketCard key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
+                      ) : (
+                        <SkeletonCard key={i} />
+                      )
+                    )}
                 </div>
               </section>
             )}
@@ -274,7 +296,9 @@ export default function Dashboard() {
       {showSettings && (
         <SettingsPanel
           hiddenSections={settings.hiddenSections}
-          onToggle={toggleSection}
+          hiddenSymbols={settings.hiddenSymbols}
+          onToggleSection={toggleSection}
+          onToggleSymbol={toggleSymbol}
           onClose={() => setShowSettings(false)}
         />
       )}

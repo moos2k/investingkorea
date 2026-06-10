@@ -22,11 +22,13 @@ export interface WatchItem {
 
 interface Settings {
   hiddenSections: SectionKey[];
+  hiddenSymbols: string[]; // 개별 항목(심볼) 단위 숨김
   watchlist: WatchItem[];
 }
 
 const DEFAULT_SETTINGS: Settings = {
   hiddenSections: [],
+  hiddenSymbols: [],
   watchlist: [],
 };
 
@@ -101,16 +103,41 @@ export function useSettings() {
     });
   }, []);
 
+  const toggleSymbol = useCallback((symbol: string) => {
+    setSettings((prev) => {
+      const isHidden = prev.hiddenSymbols.includes(symbol);
+      const next = {
+        ...prev,
+        hiddenSymbols: isHidden
+          ? prev.hiddenSymbols.filter((s) => s !== symbol)
+          : [...prev.hiddenSymbols, symbol],
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, []);
+
   const isVisible = useCallback(
     (key: SectionKey) => !settings.hiddenSections.includes(key),
     [settings.hiddenSections]
+  );
+
+  const isSymbolVisible = useCallback(
+    (symbol: string) => !settings.hiddenSymbols.includes(symbol),
+    [settings.hiddenSymbols]
   );
 
   return {
     settings,
     loaded,
     isVisible,
+    isSymbolVisible,
     toggleSection,
+    toggleSymbol,
     addWatchItem,
     removeWatchItem,
     persist,
