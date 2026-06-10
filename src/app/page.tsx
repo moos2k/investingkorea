@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import useSWR from "swr";
-import MarketCard from "@/components/MarketCard";
+import MarketListItem from "@/components/MarketListItem";
 import YieldCurve from "@/components/YieldCurve";
 import FearGauge from "@/components/FearGauge";
 import EconCalendar from "@/components/EconCalendar";
@@ -35,10 +35,6 @@ interface MarketData {
   updatedAt: string;
 }
 
-// flex-wrap 레이아웃에서 카드 너비 (gap-3 = 0.75rem 기준)
-const CARD_W_5 = "w-[calc(50%-0.375rem)] sm:w-[calc(33.333%-0.5rem)] lg:w-[calc(20%-0.6rem)]";
-const CARD_W_2 = "w-[calc(50%-0.375rem)]";
-
 function SectionTitle({ icon, title }: { icon: string; title: string }) {
   return (
     <div className="flex items-center gap-2 mb-3">
@@ -48,12 +44,19 @@ function SectionTitle({ icon, title }: { icon: string; title: string }) {
   );
 }
 
-function SkeletonCard({ className = "" }: { className?: string }) {
+function ListContainer({ children }: { children: ReactNode }) {
   return (
-    <div className={`rounded-xl border border-gray-200 p-4 bg-gray-100 animate-pulse ${className}`}>
-      <div className="h-3 bg-gray-200 rounded mb-3 w-2/3" />
-      <div className="h-6 bg-gray-200 rounded mb-2 w-1/2" />
-      <div className="h-3 bg-gray-200 rounded w-1/3" />
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm divide-y divide-gray-100 overflow-hidden">
+      {children}
+    </div>
+  );
+}
+
+function SkeletonListItem() {
+  return (
+    <div className="flex items-center justify-between px-4 py-3 animate-pulse">
+      <div className="h-3 bg-gray-200 rounded w-24" />
+      <div className="h-3 bg-gray-200 rounded w-16" />
     </div>
   );
 }
@@ -134,17 +137,17 @@ export default function Dashboard() {
         {isVisible("indices") && (
           <section>
             <SectionTitle icon="📊" title="주가지수" />
-            <div className="flex flex-wrap gap-3">
+            <ListContainer>
               {(data?.indices ?? Array(5).fill(null))
                 .filter((item) => !item || isSymbolVisible(item.symbol))
                 .map((item, i) =>
                   item ? (
-                    <MarketCard key={item.symbol} {...item} decimals={2} className={CARD_W_5} onClick={() => setSelected(item)} />
+                    <MarketListItem key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
                   ) : (
-                    <SkeletonCard key={i} className={CARD_W_5} />
+                    <SkeletonListItem key={i} />
                   )
                 )}
-            </div>
+            </ListContainer>
           </section>
         )}
 
@@ -160,39 +163,42 @@ export default function Dashboard() {
           return (
             <section>
               <SectionTitle icon="🏦" title="국채 · 환율 · 시장심리" />
-              <div className="flex flex-wrap gap-3">
+              <ListContainer>
                 {visibleBonds.map((item, i) =>
                   item ? (
-                    <MarketCard key={item.symbol} {...item} decimals={3} className={CARD_W_5} onClick={() => setSelected(item)} />
+                    <MarketListItem key={item.symbol} {...item} decimals={3} onClick={() => setSelected(item)} />
                   ) : (
-                    <SkeletonCard key={`bond-${i}`} className={CARD_W_5} />
+                    <SkeletonListItem key={`bond-${i}`} />
                   )
                 )}
                 {visibleForex.map((item, i) =>
                   item ? (
-                    <MarketCard key={item.symbol} {...item} decimals={2} className={CARD_W_5} onClick={() => setSelected(item)} />
+                    <MarketListItem key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
                   ) : (
-                    <SkeletonCard key={`fx-${i}`} className={CARD_W_5} />
+                    <SkeletonListItem key={`fx-${i}`} />
                   )
                 )}
                 {isVisible("fear") && (
                   <div
-                    className={`${CARD_W_5} rounded-xl border border-gray-200 p-4 bg-white shadow-sm flex flex-col items-center cursor-pointer hover:border-gray-300 hover:shadow-md transition-all`}
+                    className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
                     onClick={() => vixItem && setSelected(vixItem)}
                   >
-                    <div className="text-xs text-gray-500 mb-1 font-medium">VIX 공포지수</div>
+                    <div className="flex items-center gap-2 min-w-0 flex-wrap">
+                      <span className="text-sm font-medium text-gray-900 truncate">VIX 공포지수</span>
+                      {!!vixItem?.delay && (
+                        <span className="bg-amber-100 text-amber-700 rounded px-1 text-[10px] font-normal flex-shrink-0">
+                          {vixItem.delay}분 지연
+                        </span>
+                      )}
+                    </div>
                     <FearGauge
                       vix={vixItem?.price ?? null}
                       changePercent={vixItem?.changePercent ?? null}
+                      layout="row"
                     />
-                    {!!vixItem?.delay && (
-                      <div className="mt-1 text-[10px] bg-amber-100 text-amber-700 rounded px-1.5 py-0.5">
-                        {vixItem.delay}분 지연
-                      </div>
-                    )}
                   </div>
                 )}
-              </div>
+              </ListContainer>
               {data?.bonds && validBonds.length > 1 && (
                 <YieldCurve
                   bonds={validBonds.map((b) => ({
@@ -211,17 +217,17 @@ export default function Dashboard() {
             {isVisible("commodities") && (
               <section>
                 <SectionTitle icon="🛢️" title="원자재" />
-                <div className="flex flex-wrap gap-3">
+                <ListContainer>
                   {(data?.commodities ?? Array(4).fill(null))
                     .filter((item) => !item || isSymbolVisible(item.symbol))
                     .map((item, i) =>
                       item ? (
-                        <MarketCard key={item.symbol} {...item} decimals={2} className={CARD_W_2} onClick={() => setSelected(item)} />
+                        <MarketListItem key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
                       ) : (
-                        <SkeletonCard key={i} className={CARD_W_2} />
+                        <SkeletonListItem key={i} />
                       )
                     )}
-                </div>
+                </ListContainer>
               </section>
             )}
 
@@ -252,23 +258,17 @@ export default function Dashboard() {
                 관심있는 종목을 추가해보세요 (예: AAPL, TSLA, 005930.KS)
               </div>
             ) : (
-              <div className="flex flex-wrap gap-3">
+              <ListContainer>
                 {(data?.watchlist ?? settings.watchlist.map((w) => ({ ...w, price: null, change: null, changePercent: null }))).map((item) => (
-                  <div key={item.symbol} className={`relative group ${CARD_W_5}`}>
-                    <MarketCard {...item} decimals={2} className="w-full" onClick={() => setSelected(item)} />
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeWatchItem(item.symbol);
-                      }}
-                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gray-300 text-gray-600 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-rose-500 hover:text-white transition-all"
-                      title="삭제"
-                    >
-                      ✕
-                    </button>
-                  </div>
+                  <MarketListItem
+                    key={item.symbol}
+                    {...item}
+                    decimals={2}
+                    onClick={() => setSelected(item)}
+                    onRemove={() => removeWatchItem(item.symbol)}
+                  />
                 ))}
-              </div>
+              </ListContainer>
             )}
           </section>
         )}
