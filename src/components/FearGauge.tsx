@@ -25,7 +25,7 @@ export default function FearGauge({ vix, changePercent }: FearGaugeProps) {
 
   return (
     <div className="flex flex-col items-center">
-      <svg viewBox="0 0 100 55" className="w-40">
+      <svg viewBox="0 0 100 55" className="w-full max-w-[160px]">
         {/* Background arc */}
         <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#e5e7eb" strokeWidth="8" strokeLinecap="round" />
         {/* Color segments */}

@@ -148,78 +148,63 @@ export default function Dashboard() {
           </section>
         )}
 
-        {(isVisible("bonds") || isVisible("forex") || isVisible("fear")) && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {isVisible("bonds") && (() => {
-              const visibleBonds = (data?.bonds ?? Array(4).fill(null)).filter(
-                (item) => !item || isSymbolVisible(item.symbol)
-              );
-              return (
-                <section className="lg:col-span-1">
-                  <SectionTitle icon="🏦" title="미국 국채 수익률" />
-                  <div className="flex flex-wrap gap-3">
-                    {visibleBonds.map((item, i) =>
-                      item ? (
-                        <MarketCard key={item.symbol} {...item} decimals={3} className={CARD_W_2} onClick={() => setSelected(item)} />
-                      ) : (
-                        <SkeletonCard key={i} className={CARD_W_2} />
-                      )
+        {(isVisible("bonds") || isVisible("forex") || isVisible("fear")) && (() => {
+          const visibleBonds = isVisible("bonds")
+            ? (data?.bonds ?? Array(4).fill(null)).filter((item) => !item || isSymbolVisible(item.symbol))
+            : [];
+          const visibleForex = isVisible("forex")
+            ? (data?.forex ?? Array(4).fill(null)).filter((item) => !item || isSymbolVisible(item.symbol))
+            : [];
+          const validBonds = visibleBonds.filter((b): b is MarketItem => !!b);
+
+          return (
+            <section>
+              <SectionTitle icon="🏦" title="국채 · 환율 · 시장심리" />
+              <div className="flex flex-wrap gap-3">
+                {visibleBonds.map((item, i) =>
+                  item ? (
+                    <MarketCard key={item.symbol} {...item} decimals={3} className={CARD_W_5} onClick={() => setSelected(item)} />
+                  ) : (
+                    <SkeletonCard key={`bond-${i}`} className={CARD_W_5} />
+                  )
+                )}
+                {visibleForex.map((item, i) =>
+                  item ? (
+                    <MarketCard key={item.symbol} {...item} decimals={2} className={CARD_W_5} onClick={() => setSelected(item)} />
+                  ) : (
+                    <SkeletonCard key={`fx-${i}`} className={CARD_W_5} />
+                  )
+                )}
+                {isVisible("fear") && (
+                  <div
+                    className={`${CARD_W_5} rounded-xl border border-gray-200 p-4 bg-white shadow-sm flex flex-col items-center cursor-pointer hover:border-gray-300 hover:shadow-md transition-all`}
+                    onClick={() => vixItem && setSelected(vixItem)}
+                  >
+                    <div className="text-xs text-gray-500 mb-1 font-medium">VIX 공포지수</div>
+                    <FearGauge
+                      vix={vixItem?.price ?? null}
+                      changePercent={vixItem?.changePercent ?? null}
+                    />
+                    {!!vixItem?.delay && (
+                      <div className="mt-1 text-[10px] bg-amber-100 text-amber-700 rounded px-1.5 py-0.5">
+                        {vixItem.delay}분 지연
+                      </div>
                     )}
                   </div>
-                  {data?.bonds && visibleBonds.length > 1 && (
-                    <YieldCurve
-                      bonds={visibleBonds
-                        .filter((b): b is MarketItem => !!b)
-                        .map((b) => ({
-                          maturity: b.maturity ?? "",
-                          price: b.price,
-                          changePercent: b.changePercent,
-                        }))}
-                    />
-                  )}
-                </section>
-              );
-            })()}
-
-            {isVisible("forex") && (
-              <section className="lg:col-span-1">
-                <SectionTitle icon="💱" title="환율" />
-                <div className="flex flex-wrap gap-3">
-                  {(data?.forex ?? Array(4).fill(null))
-                    .filter((item) => !item || isSymbolVisible(item.symbol))
-                    .map((item, i) =>
-                      item ? (
-                        <MarketCard key={item.symbol} {...item} decimals={2} className={CARD_W_2} onClick={() => setSelected(item)} />
-                      ) : (
-                        <SkeletonCard key={i} className={CARD_W_2} />
-                      )
-                    )}
-                </div>
-              </section>
-            )}
-
-            {isVisible("fear") && (
-              <section>
-                <SectionTitle icon="😨" title="시장 심리" />
-                <div
-                  className="rounded-xl border border-gray-200 p-4 bg-white shadow-sm flex flex-col items-center cursor-pointer hover:border-gray-300 hover:shadow-md transition-all"
-                  onClick={() => vixItem && setSelected(vixItem)}
-                >
-                  <div className="text-xs text-gray-500 mb-3 font-medium">VIX 공포지수</div>
-                  <FearGauge
-                    vix={vixItem?.price ?? null}
-                    changePercent={vixItem?.changePercent ?? null}
-                  />
-                  {!!vixItem?.delay && (
-                    <div className="mt-2 text-[10px] bg-amber-100 text-amber-700 rounded px-1.5 py-0.5">
-                      {vixItem.delay}분 지연
-                    </div>
-                  )}
-                </div>
-              </section>
-            )}
-          </div>
-        )}
+                )}
+              </div>
+              {data?.bonds && validBonds.length > 1 && (
+                <YieldCurve
+                  bonds={validBonds.map((b) => ({
+                    maturity: b.maturity ?? "",
+                    price: b.price,
+                    changePercent: b.changePercent,
+                  }))}
+                />
+              )}
+            </section>
+          );
+        })()}
 
         {(isVisible("commodities") || isVisible("calendar")) && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
