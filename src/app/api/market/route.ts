@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { MARKET_SYMBOLS as SYMBOLS } from "@/lib/marketSymbols";
+import { MARKET_SYMBOLS as SYMBOLS, estimateDelay } from "@/lib/marketSymbols";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const YF = require("yahoo-finance2").default;
 // yahoo-finance2 v3 requires instantiation
@@ -63,6 +63,7 @@ export async function GET(request: Request) {
       price: q?.price ?? null,
       change: q?.change ?? null,
       changePercent: q?.changePercent ?? null,
+      delay: estimateDelay(symbol),
     };
   });
 

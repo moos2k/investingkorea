@@ -9,7 +9,9 @@ interface MarketCardProps {
   flag?: string;
   maturity?: string;
   decimals?: number;
+  delay?: number;
   onClick?: () => void;
+  className?: string;
 }
 
 export default function MarketCard({
@@ -21,35 +23,42 @@ export default function MarketCard({
   flag,
   maturity,
   decimals = 2,
+  delay,
   onClick,
+  className = "",
 }: MarketCardProps) {
   const isUp = (change ?? 0) >= 0;
-  const color = isUp ? "text-red-400" : "text-blue-400";
-  const bg = isUp ? "bg-red-400/5" : "bg-blue-400/5";
+  const color = isUp ? "text-rose-500" : "text-blue-500";
+  const bg = isUp ? "bg-rose-50" : "bg-blue-50";
   const arrow = isUp ? "▲" : "▼";
 
   return (
     <div
-      className={`rounded-xl border border-white/10 p-4 ${bg} backdrop-blur-sm ${onClick ? "cursor-pointer hover:border-white/25 hover:bg-white/5 transition-all" : ""}`}
+      className={`rounded-xl border border-gray-200 p-4 ${bg} shadow-sm ${onClick ? "cursor-pointer hover:border-gray-300 hover:shadow-md transition-all" : ""} ${className}`}
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-2">
         <div>
-          <div className="text-xs text-gray-400 font-medium">
-            {flag && <span className="mr-1">{flag}</span>}
+          <div className="text-xs text-gray-500 font-medium flex items-center flex-wrap gap-1">
+            {flag && <span>{flag}</span>}
             {maturity && (
-              <span className="bg-white/10 rounded px-1 mr-1 text-gray-300">
+              <span className="bg-gray-200 rounded px-1 text-gray-600">
                 {maturity}
               </span>
             )}
-            {name}
+            <span>{name}</span>
+            {!!delay && (
+              <span className="bg-amber-100 text-amber-700 rounded px-1 text-[10px] font-normal">
+                {delay}분 지연
+              </span>
+            )}
           </div>
-          {unit && <div className="text-xs text-gray-500 mt-0.5">{unit}</div>}
+          {unit && <div className="text-xs text-gray-400 mt-0.5">{unit}</div>}
         </div>
       </div>
       {price !== null ? (
         <>
-          <div className="text-xl font-bold text-white tabular-nums">
+          <div className="text-xl font-bold text-gray-900 tabular-nums">
             {price.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
           </div>
           <div className={`text-sm font-medium mt-1 ${color} tabular-nums`}>
@@ -60,7 +69,7 @@ export default function MarketCard({
           </div>
         </>
       ) : (
-        <div className="text-gray-500 text-sm mt-2">로딩 중...</div>
+        <div className="text-gray-400 text-sm mt-2">로딩 중...</div>
       )}
     </div>
   );

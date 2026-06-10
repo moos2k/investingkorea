@@ -20,16 +20,16 @@ export default function EconCalendar() {
         const d = new Date(e.date);
         const daysLeft = Math.ceil((d.getTime() - today.getTime()) / 86400000);
         return (
-          <div key={i} className="flex items-center gap-3 py-2 border-b border-white/5">
+          <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
             <div className="text-center min-w-[48px]">
               <div className="text-xs text-gray-400">
                 {d.toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}
               </div>
-              <div className="text-xs font-bold text-yellow-400">{e.time}</div>
+              <div className="text-xs font-bold text-amber-500">{e.time}</div>
             </div>
             <div className="flex-1">
-              <div className="text-sm text-white">{e.name}</div>
-              <div className="text-xs text-gray-500">
+              <div className="text-sm text-gray-900">{e.name}</div>
+              <div className="text-xs text-gray-400">
                 {daysLeft === 0 ? "오늘" : daysLeft === 1 ? "내일" : `${daysLeft}일 후`}
               </div>
             </div>
@@ -38,7 +38,7 @@ export default function EconCalendar() {
                 <div
                   key={n}
                   className={`w-1.5 h-3 rounded-sm ${
-                    n <= e.importance ? "bg-yellow-400" : "bg-gray-600"
+                    n <= e.importance ? "bg-amber-400" : "bg-gray-200"
                   }`}
                 />
               ))}

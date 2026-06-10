@@ -54,12 +54,12 @@ function CustomTooltip({ active, payload, label, period }: any) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload as HistoryPoint;
   return (
-    <div className="bg-[#1a2035] border border-white/10 rounded-lg p-3 text-xs shadow-xl">
-      <div className="text-gray-400 mb-1">{formatDate(label, period)}</div>
-      <div className="text-white font-bold text-sm">{formatPrice(d.close)}</div>
-      <div className="text-gray-400 mt-1">
-        고가 <span className="text-red-400">{formatPrice(d.high)}</span>{" "}
-        저가 <span className="text-blue-400">{formatPrice(d.low)}</span>
+    <div className="bg-white border border-gray-200 rounded-lg p-3 text-xs shadow-lg">
+      <div className="text-gray-500 mb-1">{formatDate(label, period)}</div>
+      <div className="text-gray-900 font-bold text-sm">{formatPrice(d.close)}</div>
+      <div className="text-gray-500 mt-1">
+        고가 <span className="text-rose-500">{formatPrice(d.high)}</span>{" "}
+        저가 <span className="text-blue-500">{formatPrice(d.low)}</span>
       </div>
     </div>
   );
@@ -97,7 +97,7 @@ export default function ChartModal({ symbol, name, price, changePercent, onClose
   }, [onClose]);
 
   const isUp = (changePercent ?? 0) >= 0;
-  const color = isUp ? "#f87171" : "#60a5fa";
+  const color = isUp ? "#f43f5e" : "#3b82f6";
   const gradientId = `grad-${symbol.replace(/[^a-z0-9]/gi, "")}`;
 
   // 차트 변화율 계산 (표시 기간 기준)
@@ -113,32 +113,32 @@ export default function ChartModal({ symbol, name, price, changePercent, onClose
       onClick={onClose}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
 
       {/* Modal */}
       <div
-        className="relative w-full max-w-2xl bg-[#0f1629] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-2xl bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-start justify-between p-5 pb-3">
           <div>
-            <h2 className="text-xl font-bold text-white">{name}</h2>
+            <h2 className="text-xl font-bold text-gray-900">{name}</h2>
             <div className="text-xs text-gray-400 mt-0.5">{symbol}</div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-white tabular-nums">
+            <div className="text-2xl font-bold text-gray-900 tabular-nums">
               {price !== null ? formatPrice(price) : "-"}
             </div>
             {changePercent !== null && (
-              <div className={`text-sm font-medium ${isUp ? "text-red-400" : "text-blue-400"}`}>
+              <div className={`text-sm font-medium ${isUp ? "text-rose-500" : "text-blue-500"}`}>
                 {isUp ? "▲" : "▼"} {Math.abs(changePercent).toFixed(2)}%
               </div>
             )}
           </div>
           <button
             onClick={onClose}
-            className="ml-4 text-gray-500 hover:text-white transition-colors text-xl leading-none"
+            className="ml-4 text-gray-400 hover:text-gray-700 transition-colors text-xl leading-none"
           >
             ✕
           </button>
@@ -152,8 +152,8 @@ export default function ChartModal({ symbol, name, price, changePercent, onClose
               onClick={() => setPeriod(p)}
               className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                 period === p
-                  ? "bg-white/15 text-white"
-                  : "text-gray-500 hover:text-gray-300"
+                  ? "bg-gray-900 text-white"
+                  : "text-gray-500 hover:text-gray-800 hover:bg-gray-100"
               }`}
             >
               {p}
@@ -161,12 +161,12 @@ export default function ChartModal({ symbol, name, price, changePercent, onClose
           ))}
 
           {/* chart type toggle */}
-          <div className="ml-auto flex rounded-lg overflow-hidden border border-white/10">
+          <div className="ml-auto flex rounded-lg overflow-hidden border border-gray-200">
             <button
               onClick={() => setChartType("area")}
               title="라인 차트"
               className={`px-2.5 py-1 text-xs transition-colors ${
-                chartType === "area" ? "bg-white/15 text-white" : "text-gray-500 hover:text-gray-300"
+                chartType === "area" ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-800 hover:bg-gray-100"
               }`}
             >
               〰
@@ -174,8 +174,8 @@ export default function ChartModal({ symbol, name, price, changePercent, onClose
             <button
               onClick={() => setChartType("candle")}
               title="캔들 차트"
-              className={`px-2.5 py-1 text-xs transition-colors border-l border-white/10 ${
-                chartType === "candle" ? "bg-white/15 text-white" : "text-gray-500 hover:text-gray-300"
+              className={`px-2.5 py-1 text-xs transition-colors border-l border-gray-200 ${
+                chartType === "candle" ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-800 hover:bg-gray-100"
               }`}
             >
               ▌▌
@@ -183,7 +183,7 @@ export default function ChartModal({ symbol, name, price, changePercent, onClose
           </div>
 
           {periodChange !== null && (
-            <span className={`ml-3 text-xs font-medium ${periodUp ? "text-red-400" : "text-blue-400"}`}>
+            <span className={`ml-3 text-xs font-medium ${periodUp ? "text-rose-500" : "text-blue-500"}`}>
               {periodUp ? "▲" : "▼"} {Math.abs(periodChange).toFixed(2)}% ({period})
             </span>
           )}
@@ -192,12 +192,12 @@ export default function ChartModal({ symbol, name, price, changePercent, onClose
         {/* Chart */}
         <div className="px-2 pb-5 h-64">
           {loading && (
-            <div className="h-full flex items-center justify-center text-gray-500 text-sm animate-pulse">
+            <div className="h-full flex items-center justify-center text-gray-400 text-sm animate-pulse">
               차트 로딩 중...
             </div>
           )}
           {error && (
-            <div className="h-full flex items-center justify-center text-gray-500 text-sm">
+            <div className="h-full flex items-center justify-center text-gray-400 text-sm">
               데이터를 불러올 수 없습니다
             </div>
           )}
@@ -210,11 +210,11 @@ export default function ChartModal({ symbol, name, price, changePercent, onClose
                     <stop offset="95%" stopColor={color} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#00000010" />
                 <XAxis
                   dataKey="date"
                   tickFormatter={(v) => formatDate(v, period)}
-                  tick={{ fill: "#6b7280", fontSize: 10 }}
+                  tick={{ fill: "#9ca3af", fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
                   interval="preserveStartEnd"
@@ -223,7 +223,7 @@ export default function ChartModal({ symbol, name, price, changePercent, onClose
                 <YAxis
                   domain={["auto", "auto"]}
                   tickFormatter={(v) => formatPrice(v)}
-                  tick={{ fill: "#6b7280", fontSize: 10 }}
+                  tick={{ fill: "#9ca3af", fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
                   width={60}

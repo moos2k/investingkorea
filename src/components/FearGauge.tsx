@@ -14,7 +14,7 @@ function getLabel(vix: number) {
 }
 
 export default function FearGauge({ vix, changePercent }: FearGaugeProps) {
-  if (vix === null) return <div className="text-gray-500 text-sm">로딩 중...</div>;
+  if (vix === null) return <div className="text-gray-400 text-sm">로딩 중...</div>;
 
   const { text, color } = getLabel(vix);
   // gauge: 0~50 mapped to 0~180 degrees
@@ -27,20 +27,20 @@ export default function FearGauge({ vix, changePercent }: FearGaugeProps) {
     <div className="flex flex-col items-center">
       <svg viewBox="0 0 100 55" className="w-40">
         {/* Background arc */}
-        <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#374151" strokeWidth="8" strokeLinecap="round" />
+        <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#e5e7eb" strokeWidth="8" strokeLinecap="round" />
         {/* Color segments */}
         <path d="M 10 50 A 40 40 0 0 1 30 17" fill="none" stroke="#22c55e" strokeWidth="8" strokeLinecap="butt" opacity="0.6" />
         <path d="M 30 17 A 40 40 0 0 1 50 10" fill="none" stroke="#86efac" strokeWidth="8" strokeLinecap="butt" opacity="0.6" />
         <path d="M 50 10 A 40 40 0 0 1 70 17" fill="none" stroke="#facc15" strokeWidth="8" strokeLinecap="butt" opacity="0.6" />
         <path d="M 70 17 A 40 40 0 0 1 90 50" fill="none" stroke="#ef4444" strokeWidth="8" strokeLinecap="round" opacity="0.6" />
         {/* Needle */}
-        <line x1="50" y1="50" x2={nx} y2={ny} stroke="white" strokeWidth="2" strokeLinecap="round" />
-        <circle cx="50" cy="50" r="3" fill="white" />
+        <line x1="50" y1="50" x2={nx} y2={ny} stroke="#1f2937" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="50" cy="50" r="3" fill="#1f2937" />
       </svg>
-      <div className="text-2xl font-bold text-white tabular-nums">{vix.toFixed(2)}</div>
+      <div className="text-2xl font-bold text-gray-900 tabular-nums">{vix.toFixed(2)}</div>
       <div className="text-sm font-medium mt-0.5" style={{ color }}>{text}</div>
       {changePercent !== null && (
-        <div className={`text-xs mt-1 ${changePercent >= 0 ? "text-red-400" : "text-blue-400"}`}>
+        <div className={`text-xs mt-1 ${changePercent >= 0 ? "text-rose-500" : "text-blue-500"}`}>
           {changePercent >= 0 ? "▲" : "▼"} {Math.abs(changePercent).toFixed(2)}%
         </div>
       )}

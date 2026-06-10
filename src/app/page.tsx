@@ -22,6 +22,7 @@ interface MarketItem {
   flag?: string;
   maturity?: string;
   unit?: string;
+  delay?: number;
 }
 
 interface MarketData {
@@ -34,21 +35,25 @@ interface MarketData {
   updatedAt: string;
 }
 
+// flex-wrap 레이아웃에서 카드 너비 (gap-3 = 0.75rem 기준)
+const CARD_W_5 = "w-[calc(50%-0.375rem)] sm:w-[calc(33.333%-0.5rem)] lg:w-[calc(20%-0.6rem)]";
+const CARD_W_2 = "w-[calc(50%-0.375rem)]";
+
 function SectionTitle({ icon, title }: { icon: string; title: string }) {
   return (
     <div className="flex items-center gap-2 mb-3">
       <span className="text-lg">{icon}</span>
-      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">{title}</h2>
+      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{title}</h2>
     </div>
   );
 }
 
-function SkeletonCard() {
+function SkeletonCard({ className = "" }: { className?: string }) {
   return (
-    <div className="rounded-xl border border-white/10 p-4 bg-white/5 animate-pulse">
-      <div className="h-3 bg-white/10 rounded mb-3 w-2/3" />
-      <div className="h-6 bg-white/10 rounded mb-2 w-1/2" />
-      <div className="h-3 bg-white/10 rounded w-1/3" />
+    <div className={`rounded-xl border border-gray-200 p-4 bg-gray-100 animate-pulse ${className}`}>
+      <div className="h-3 bg-gray-200 rounded mb-3 w-2/3" />
+      <div className="h-6 bg-gray-200 rounded mb-2 w-1/2" />
+      <div className="h-3 bg-gray-200 rounded w-1/3" />
     </div>
   );
 }
@@ -91,10 +96,10 @@ export default function Dashboard() {
   const vixItem = data?.fear?.[0];
 
   return (
-    <div className="min-h-screen bg-[#0a0e1a] text-white">
-      <header className="border-b border-white/10 px-4 py-3 flex items-center justify-between sticky top-0 bg-[#0a0e1a]/90 backdrop-blur-md z-10">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <header className="border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur-md z-10">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xs font-bold">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">
             M
           </div>
           <span className="font-bold text-base">MacroView</span>
@@ -107,17 +112,17 @@ export default function Dashboard() {
                 업데이트 중
               </span>
             )}
-            {error && <span className="text-red-400">데이터 오류</span>}
+            {error && <span className="text-rose-500">데이터 오류</span>}
             {updatedAt && !isLoading && (
               <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                 {updatedAt} 기준
               </span>
             )}
           </div>
           <button
             onClick={() => setShowSettings(true)}
-            className="text-gray-400 hover:text-white transition-colors text-lg"
+            className="text-gray-400 hover:text-gray-700 transition-colors text-lg"
             title="표시 항목 설정"
           >
             ⚙️
@@ -129,14 +134,14 @@ export default function Dashboard() {
         {isVisible("indices") && (
           <section>
             <SectionTitle icon="📊" title="주가지수" />
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div className="flex flex-wrap gap-3">
               {(data?.indices ?? Array(5).fill(null))
                 .filter((item) => !item || isSymbolVisible(item.symbol))
                 .map((item, i) =>
                   item ? (
-                    <MarketCard key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
+                    <MarketCard key={item.symbol} {...item} decimals={2} className={CARD_W_5} onClick={() => setSelected(item)} />
                   ) : (
-                    <SkeletonCard key={i} />
+                    <SkeletonCard key={i} className={CARD_W_5} />
                   )
                 )}
             </div>
@@ -152,12 +157,12 @@ export default function Dashboard() {
               return (
                 <section className="lg:col-span-1">
                   <SectionTitle icon="🏦" title="미국 국채 수익률" />
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-wrap gap-3">
                     {visibleBonds.map((item, i) =>
                       item ? (
-                        <MarketCard key={item.symbol} {...item} decimals={3} onClick={() => setSelected(item)} />
+                        <MarketCard key={item.symbol} {...item} decimals={3} className={CARD_W_2} onClick={() => setSelected(item)} />
                       ) : (
-                        <SkeletonCard key={i} />
+                        <SkeletonCard key={i} className={CARD_W_2} />
                       )
                     )}
                   </div>
@@ -179,14 +184,14 @@ export default function Dashboard() {
             {isVisible("forex") && (
               <section className="lg:col-span-1">
                 <SectionTitle icon="💱" title="환율" />
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-wrap gap-3">
                   {(data?.forex ?? Array(4).fill(null))
                     .filter((item) => !item || isSymbolVisible(item.symbol))
                     .map((item, i) =>
                       item ? (
-                        <MarketCard key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
+                        <MarketCard key={item.symbol} {...item} decimals={2} className={CARD_W_2} onClick={() => setSelected(item)} />
                       ) : (
-                        <SkeletonCard key={i} />
+                        <SkeletonCard key={i} className={CARD_W_2} />
                       )
                     )}
                 </div>
@@ -197,14 +202,19 @@ export default function Dashboard() {
               <section>
                 <SectionTitle icon="😨" title="시장 심리" />
                 <div
-                  className="rounded-xl border border-white/10 p-4 bg-white/5 flex flex-col items-center cursor-pointer hover:border-white/25 transition-all"
+                  className="rounded-xl border border-gray-200 p-4 bg-white shadow-sm flex flex-col items-center cursor-pointer hover:border-gray-300 hover:shadow-md transition-all"
                   onClick={() => vixItem && setSelected(vixItem)}
                 >
-                  <div className="text-xs text-gray-400 mb-3 font-medium">VIX 공포지수</div>
+                  <div className="text-xs text-gray-500 mb-3 font-medium">VIX 공포지수</div>
                   <FearGauge
                     vix={vixItem?.price ?? null}
                     changePercent={vixItem?.changePercent ?? null}
                   />
+                  {!!vixItem?.delay && (
+                    <div className="mt-2 text-[10px] bg-amber-100 text-amber-700 rounded px-1.5 py-0.5">
+                      {vixItem.delay}분 지연
+                    </div>
+                  )}
                 </div>
               </section>
             )}
@@ -216,14 +226,14 @@ export default function Dashboard() {
             {isVisible("commodities") && (
               <section>
                 <SectionTitle icon="🛢️" title="원자재" />
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-wrap gap-3">
                   {(data?.commodities ?? Array(4).fill(null))
                     .filter((item) => !item || isSymbolVisible(item.symbol))
                     .map((item, i) =>
                       item ? (
-                        <MarketCard key={item.symbol} {...item} decimals={2} onClick={() => setSelected(item)} />
+                        <MarketCard key={item.symbol} {...item} decimals={2} className={CARD_W_2} onClick={() => setSelected(item)} />
                       ) : (
-                        <SkeletonCard key={i} />
+                        <SkeletonCard key={i} className={CARD_W_2} />
                       )
                     )}
                 </div>
@@ -233,7 +243,7 @@ export default function Dashboard() {
             {isVisible("calendar") && (
               <section>
                 <SectionTitle icon="📅" title="경제 캘린더" />
-                <div className="rounded-xl border border-white/10 p-4 bg-white/5">
+                <div className="rounded-xl border border-gray-200 p-4 bg-white shadow-sm">
                   <EconCalendar />
                 </div>
               </section>
@@ -247,26 +257,26 @@ export default function Dashboard() {
               <SectionTitle icon="⭐" title="관심종목" />
               <button
                 onClick={() => setShowAddStock(true)}
-                className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1 mb-3"
+                className="text-xs text-blue-500 hover:text-blue-600 transition-colors flex items-center gap-1 mb-3"
               >
                 + 종목 추가
               </button>
             </div>
             {settings.watchlist.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-gray-500">
+              <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400">
                 관심있는 종목을 추가해보세요 (예: AAPL, TSLA, 005930.KS)
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <div className="flex flex-wrap gap-3">
                 {(data?.watchlist ?? settings.watchlist.map((w) => ({ ...w, price: null, change: null, changePercent: null }))).map((item) => (
-                  <div key={item.symbol} className="relative group">
-                    <MarketCard {...item} decimals={2} onClick={() => setSelected(item)} />
+                  <div key={item.symbol} className={`relative group ${CARD_W_5}`}>
+                    <MarketCard {...item} decimals={2} className="w-full" onClick={() => setSelected(item)} />
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         removeWatchItem(item.symbol);
                       }}
-                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gray-700 text-gray-300 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition-all"
+                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gray-300 text-gray-600 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-rose-500 hover:text-white transition-all"
                       title="삭제"
                     >
                       ✕
@@ -279,8 +289,8 @@ export default function Dashboard() {
         )}
       </main>
 
-      <footer className="text-center text-xs text-gray-600 py-6 mt-4">
-        데이터 출처: Yahoo Finance · 15분 지연 데이터 포함 · 투자 참고용
+      <footer className="text-center text-xs text-gray-400 py-6 mt-4">
+        데이터 출처: Yahoo Finance · 일부 항목은 지연 데이터 포함 · 투자 참고용
       </footer>
 
       {selected && (

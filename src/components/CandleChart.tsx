@@ -33,31 +33,31 @@ export default function CandleChart({ data }: CandleChartProps) {
         textColor: "#6b7280",
       },
       grid: {
-        vertLines: { color: "#ffffff08", style: LineStyle.Solid },
-        horzLines: { color: "#ffffff08", style: LineStyle.Solid },
+        vertLines: { color: "#00000008", style: LineStyle.Solid },
+        horzLines: { color: "#00000008", style: LineStyle.Solid },
       },
       rightPriceScale: {
-        borderColor: "#ffffff10",
+        borderColor: "#00000014",
       },
       timeScale: {
-        borderColor: "#ffffff10",
+        borderColor: "#00000014",
         timeVisible: false,
       },
       crosshair: {
-        vertLine: { color: "#ffffff30", width: 1, style: LineStyle.Dashed },
-        horzLine: { color: "#ffffff30", width: 1, style: LineStyle.Dashed },
+        vertLine: { color: "#00000030", width: 1, style: LineStyle.Dashed },
+        horzLine: { color: "#00000030", width: 1, style: LineStyle.Dashed },
       },
       width: containerRef.current.clientWidth,
       height: containerRef.current.clientHeight,
     });
 
     const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: "#f87171",
-      downColor: "#60a5fa",
-      borderUpColor: "#f87171",
-      borderDownColor: "#60a5fa",
-      wickUpColor: "#f87171",
-      wickDownColor: "#60a5fa",
+      upColor: "#f43f5e",
+      downColor: "#3b82f6",
+      borderUpColor: "#f43f5e",
+      borderDownColor: "#3b82f6",
+      wickUpColor: "#f43f5e",
+      wickDownColor: "#3b82f6",
     });
 
     const formatted = data.map((d) => ({
